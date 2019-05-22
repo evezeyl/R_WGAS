@@ -1,0 +1,137 @@
+---
+title: "TreeWAS"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+GitHub link: [treeWAS](https://github.com/caitiecollins/treeWAS)
+Article link: [paper](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005958)
+
+# Installation
+Note: did not manage to make it work in R 3.6 yet because of some dependencies 
+appear not to exist yet for R 3.6
+
+Best: install conda with bioconductor and run from R3.5.1+ or similar? 
+`conda activate bioconductor` for me
+
+[Bioconductor installing](https://bioconductor.org/install/)
+
+
+Only need to be done at first time!
+
+```{r eval=FALSE, include=TRUE}
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+    BiocManager::install()
+
+library(devtools)
+install_github("caitiecollins/treeWAS", build_vignettes = TRUE)
+# here might be error because does not find environments variables
+# Sys.setenv(TAR = "/bin/tar")
+# possible fix: better to install stuff directly into conda
+# add to instal magick, units2, sf in conda also !
+# units2 sf
+
+# I like pacman to see functions present in package
+
+```
+
+[chunk options](https://yihui.name/knitr/options/?version=1.1.463&mode=desktop)
+
+Loading libraries: 
+```{r eval=TRUE, include=TRUE}
+library(treeWAS)
+library(pacman)
+```
+
+Control confunding effects: population structure /stratification + homologous 
+recombination =>  overlap ancestry ~ phenotypic states 
+
+# Functionning
+## Required data:
+genetic data : matrix - binary : SNPs, gene presence/abscence ... 
+    > col = genetic variables
+    > rows = individuals isolates
+    > labeled
+
+phenotypic data: vector OR factor (categorical variable)
+    > row labels corresponding to row labels genetic data matrix
+    
+Optional: 
+phylogenetic tree: `phylo` object - rooted or unrooted
+    > tip labels must correspond to row labels
+    > remove outgroup -> ie subsetting phylo tree
+
+Reconstruction genotype ancestral state (with parsimony or ML reconstruction)
+Reconstruction phenotype ancestral state
+
+## Simulations: null distribution
+
+"null" maintain: clonal genealogy, terminal phenotype, genetic composition, and **homoplasy distribution** (the number of substitutions per site due to both mutation and recombination).
+
+Measure association scores real and simulated data set jointly -> null
+distribution of association scores statistics
+- simulated locus and empirical phenotype -> null distribution -> association scores
+- empirical locus and empirical phenotype -> association scores
+significance = threshold upper tail at:
+quantile = 1- pvalue (corrected for multiple testing)
+so loci association score > threshold -> ***
+
+## Test associations
+### Preambule 
+> need some stats for understanding associations 
+
+### Notation
+
+G = Genotypic state
+P = Phenotypic state
+a = ...at ancestral nodes
+d = ...at descendant nodes
+n = number of terminal nodes
+i = locus
+
+### Test 1: Termnial test = Score 1
+> sample-wide association across the leaves
+
+> broad patterns of correlation between genetic loci and the phenotype, without relying on inferences drawn from **reconstructions of the ancestral states**.
+
+
+For binary data ? 4 states - Genotype 0/1 Phenotype 0/4 -> **combinations**
+
+
+
+For continuous phenotypes
+at loci i: $\ sc1= \mid \frac{1}{n}(P^d G^d + (1 - P^d)(1 - G^d) - (1 - P^d)G^d - P^d(1 - G^d))  \mid $
+
+Generalised: 
+ 
+
+$$\ Score1 = \sum_{i=1}^n sc1_i = \mid {\sum_{i=1}^n \frac{1}{n} (P^d_iG^d_i + (1-P^d_i)(1-G^d_i) - 
+(1-P^d_i) G^d_i - P^d_i(1-G_i))}  \mid $$
+
+
+### Test 2: Simultaneous test = Score 
+identification of simultaneous substitutions in both the genetic locus and phenotypic variable on the same branch of the phylogenetic tree (or parallel change in non-binary data). 
+are an indicator of a deterministic relationship between genotype and phenotype. 
+
+not negatively impacted by the lack of association on other branches, it may be able to detect associations occurring through complementary pathways (i.e., in some clades but not others).
+
+$$\ Simultaneous = \mid (P^a - P^d)(G^a - G^d) \mid $$
+
+### Test 3: Subsequent test = Score 
+
+in what proportion of tree branches we expect the genotype and phenotype to be in the same state
+may allows us to identify broad, if imperfect, patterns of association
+
+$$\ Subsequent = \mid \frac{4}{3} (P^a G^a) + \frac{2}{3}(P^a  G^d) + \frac{2}{3}
+(P^d x G^a) + \frac{4}{3}(P^d  G^d) - P^a - P^d - G^a - G^d + 1 \ \mid $$
+
+
+# Testing dataset 
+```{r echo=TRUE}
+
+
+```
+
