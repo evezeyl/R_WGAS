@@ -1,0 +1,38 @@
+---
+title:"working with sequences data and trees"
+output: html_notebook
+---
+
+```{r}
+plot(cars)
+```
+
+[Estimating phylogenetic trees with phangorn](https://cran.r-project.org/web/packages/phangorn/vignettes/Trees.pdf)
+- note: you build your tree -> then you compute parameters -> and test likelihood, most parcimonious ...
+- phangorn_Trees.pdf
+
+# Packages
+phangorn
+ape
+
+
+## Working with sequences
+
+? how to do the alignement in R! 
+
+## starting from aligned sequences
+
+phyDat <- an alignement 
+- phangorn:read.phyDat : read in an alignment (?read.dna)
+
+DNAbin <- an alignement  
+## building trees
+
+1) Distance based methods 
+ape:dist.dna <- alignement = class DNAbin , choice substitution model
+
+- rooted: UPGMA
+- unrooted: NJ
+- other: cf ape:
+
+distml

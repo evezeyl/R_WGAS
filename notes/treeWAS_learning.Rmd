@@ -50,11 +50,20 @@ Control confunding effects: population structure /stratification + homologous
 recombination =>  overlap ancestry ~ phenotypic states 
 
 # Functionning
-## Required data:
-genetic data : matrix - binary : SNPs, gene presence/abscence ... 
+
+## 1) Prerequired: Phylogenetic reconstruction
+### ML or distance based:
+- can be done within treeWAS
+- if need take in account recomination osv -> external
+
+
+### Required data:
+genetic data : matrix - **binary** : SNPs, gene presence/abscence ... 
     > col = genetic variables
     > rows = individuals isolates
     > labeled
+    
+    - [ ] there I think its the binary explanation
 
 phenotypic data: vector OR factor (categorical variable)
     > row labels corresponding to row labels genetic data matrix
@@ -67,7 +76,46 @@ phylogenetic tree: `phylo` object - rooted or unrooted
 Reconstruction genotype ancestral state (with parsimony or ML reconstruction)
 Reconstruction phenotype ancestral state
 
-## Simulations: null distribution
+## Data import and transformation:
+- [ ] need to look at ape package 
+
+SEQUENCES
+```{r eval=F, include=TRUE}
+# from ape
+sequences <- read.dna(file = , format = )
+# convert to binary
+mat <- DNAbin2genind(sequences)@tab
+# remove reduncdan colums -> to get "Biallelic loci"
+
+```
+
+TREES
+
+```{r eval=F, include=TRUE}
+tree<- read.<format>(file = )
+```
+
+PHENOTYPIC DATA
+
+? # could not we do that directly?
+```{r eval=F, include=TRUE}
+df <- read.table(file = )
+#convert to vector - and assign names to rownames
+phen <- as.vector(unlist(df))
+names(phen) <- rownames(df)
+# need to check if does ok
+```
+
+Check that labelling of each object is consistent (even if done in treeWAS)
+is.null() and all(names %in% other)
+
+## 2) Computation of Homoplasy distribution - Fitch parsimony algorithm
+[Fitch algorithm](https://www.youtube.com/watch?v=Q7ZpdPCx0uQ) -> the algorithm
+for determining length of a given tree in parsimony analysis
+[Fitch original paper](http://compphys.bio.uci.edu/fitch/TowardDefining.pdf)
+
+## 3) Simulations: null distribution = null genetic data
+> delineation true association VS supurious
 
 "null" maintain: clonal genealogy, terminal phenotype, genetic composition, and **homoplasy distribution** (the number of substitutions per site due to both mutation and recombination).
 
@@ -81,7 +129,7 @@ so loci association score > threshold -> ***
 
 ## Test associations
 ### Preambule 
-> need some stats for understanding associations 
+- [ ] need some stats for understanding associations - need to be simple
 
 ### Notation
 
@@ -99,6 +147,8 @@ i = locus
 
 
 For binary data ? 4 states - Genotype 0/1 Phenotype 0/4 -> **combinations**
+- [ ]  understand! 
+2 states possible at each branch because topology binary ...BIFURCATING -> or way encoding SNPs
 
 
 
@@ -131,7 +181,41 @@ $$\ Subsequent = \mid \frac{4}{3} (P^a G^a) + \frac{2}{3}(P^a  G^d) + \frac{2}{3
 
 # Testing dataset 
 ```{r echo=TRUE}
+data(snps) # snps data - binary coded
+str(snps) # num - binary data (missing values: NA), colnames:pos.nucleotide and rownames: A_x B_x
+snps[1:10,1:10] #viewing first 10 rows and col of snps
+class(snps) # matrix
+
+data(phen) # phenotypic data
+str(phen) # factor -  2 levels A or B
+class(phen)
+levels(phen)
+head(phen)
+table(phen) # count nb per level
+
+data(tree)
+str(tree)
+class(tree) # phylo
+# accessing the elements of tree
+attributes(tree)$order
+tree$node
+tree$tip.label
+
+# assume anscestral node states have been estimated 
+data(phen.plot.col) # reconstructed ancestral state - color vector associated to ancestral state
+str(phen.plot.col) # vectors of colors for each element of the tree
+table(phen.plot.col$tip.labels)
 
 
+# !!! this does not work - and no scaling ... CAUTION
+plot_phen(tree, phen.nodes=phen.plot.col$all.nodes)
+# Visualise the reconstructed ancestral state fo a variable along phylogenetic tree
+# changes between states = grey
+plot_phen(tree, phen.nodes=(phen.plot.col$all.nodes == "red")) # needed to transform into binary
+# We could probably do something similar with ggplot2/ggtree 
+# visually designed specifically for here -> caution!
 ```
+
+
+
 
